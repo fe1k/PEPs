@@ -2,7 +2,7 @@
  * @author BOUNOUA Ilyas and VAZEILLE Clément
  * @description This file defines the Interaction entity, which represents an interaction with a module.
  */
-package peps.peps_back.items;
+package peps.peps_back.domain;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import peps.peps_back.items.Module;
+import peps.peps_back.domain.Module;
 import peps.peps_back.repositories.ModuleRepository;
 import peps.peps_back.repositories.UserRepository;
-import peps.peps_back.items.User;
+import peps.peps_back.domain.User;
 import peps.peps_back.services.AuditService;
 import javax.persistence.OptimisticLockException;
 

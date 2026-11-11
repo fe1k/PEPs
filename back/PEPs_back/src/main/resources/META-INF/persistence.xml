@@ -6,11 +6,11 @@
   <!-- Define Persistence Unit -->
   <persistence-unit name="peps.peps_back.0PU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-    <class>peps.peps_back.items.Interaction</class>
-    <class>peps.peps_back.items.Sound</class>
-    <class>peps.peps_back.items.Module</class>
-    <class>peps.peps_back.items.User</class>
-    <class>peps.peps_back.items.AuditLog</class>
+    <class>peps.peps_back.domain.Interaction</class>
+    <class>peps.peps_back.domain.Sound</class>
+    <class>peps.peps_back.domain.Module</class>
+    <class>peps.peps_back.domain.User</class>
+    <class>peps.peps_back.domain.AuditLog</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
 

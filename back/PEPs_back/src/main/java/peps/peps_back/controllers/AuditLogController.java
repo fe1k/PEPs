@@ -3,7 +3,7 @@ package peps.peps_back.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import peps.peps_back.items.AuditLog;
+import peps.peps_back.domain.AuditLog;
 import peps.peps_back.repositories.AuditLogRepository;
 
 import java.util.Calendar;

@@ -1,7 +1,7 @@
 package peps.peps_back.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import peps.peps_back.items.User;
+import peps.peps_back.domain.User;
 
 import java.util.Optional;
 

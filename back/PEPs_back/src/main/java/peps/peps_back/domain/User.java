@@ -1,4 +1,4 @@
-package peps.peps_back.items;
+package peps.peps_back.domain;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

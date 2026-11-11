@@ -2,7 +2,7 @@
  * @author BOUNOUA Ilyas and VAZEILLE Clément
  * @description This file defines the Sound entity, which represents a sound file in the system.
  */
-package peps.peps_back.items;
+package peps.peps_back.domain;
 
 import java.io.Serializable;
 import java.util.Collection;

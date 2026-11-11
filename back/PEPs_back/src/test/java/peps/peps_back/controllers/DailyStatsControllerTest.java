@@ -2,21 +2,17 @@ package peps.peps_back.controllers;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import peps.peps_back.items.Interaction;
+import peps.peps_back.domain.Interaction;
 import peps.peps_back.repositories.InteractionRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
