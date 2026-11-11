@@ -24,7 +24,7 @@ services:
 
   # MinIO Object Storage (S3-compatible)
   minio:
-    image: minio/minio:latest
+    image: rancher/mirrored-minio-minio:RELEASE.2023-07-07T07-13-57Z
     container_name: peps-minio
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
