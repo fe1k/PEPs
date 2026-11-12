@@ -4,7 +4,7 @@
 
 CREATE TABLE peps.Species (
     id_species   SERIAL PRIMARY KEY,
-    species_name varchar(50) NOT NULL UNIQUE,
+    name varchar(50) NOT NULL UNIQUE,
     description  TEXT
 );
 
@@ -70,12 +70,13 @@ CREATE TABLE peps.Interaction (
         ON DELETE SET NULL
 );
 
-CREATE TABLE peps.Playlist_Sounds (
+CREATE TABLE peps.Playlist_Sound (
+    id_playlist_sound SERIAL PRIMARY KEY,
     id_playlist integer NOT NULL,
     id_sound    integer NOT NULL,
     play_order  integer NOT NULL,
 
-    PRIMARY KEY (id_playlist, play_order),
+    CONSTRAINT uq_playlist_order UNIQUE (id_playlist, play_order),
     CONSTRAINT fk_ps_playlist
         FOREIGN KEY (id_playlist) REFERENCES peps.Playlist(id_playlist)
         ON DELETE CASCADE,

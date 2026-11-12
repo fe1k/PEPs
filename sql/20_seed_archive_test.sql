@@ -9,7 +9,7 @@
 --   - non archivables : moins de 3 mois (pour vérifier qu'elles restent)
 --
 -- Dépend de 10_seed_data.sql (users, species, modules, sounds).
--- ⚠️ Non idempotent : relancer le script duplique les lignes.
+-- Non idempotent : relancer le script duplique les lignes.
 -- ============================================================
 
 -- ------------------------------------------------------------
@@ -40,10 +40,10 @@ LEFT JOIN peps.users u ON u.login = v.login;
 -- Module et son choisis par espèce (pas d'id codé en dur)
 -- ------------------------------------------------------------
 WITH target AS (
-    SELECT s.species_name,
+    SELECT s.name,
            (SELECT MIN(m.id_module) FROM peps.IoT_Module m
              WHERE m.id_species = s.id_species AND m.is_active) AS id_module,
-           (SELECT ps.id_sound FROM peps.Playlist_Sounds ps
+           (SELECT ps.id_sound FROM peps.Playlist_Sound ps
              JOIN peps.IoT_Module m ON m.id_playlist = ps.id_playlist
             WHERE m.id_species = s.id_species
             ORDER BY ps.play_order LIMIT 1) AS id_sound
@@ -75,8 +75,8 @@ FROM (VALUES
     -- Non archivables (récentes)
     ('Dauphin', 'Head',  INTERVAL '2 weeks'),
     ('Ara',     'Bec',   INTERVAL '1 month')
-) AS v(species_name, interaction_type, age)
-JOIN target t ON t.species_name = v.species_name;
+) AS v(name, interaction_type, age)
+JOIN target t ON t.name = v.name;
 
 -- ------------------------------------------------------------
 -- Vérification : archivable / non archivable par table

@@ -11,7 +11,7 @@ Docker mounts it as `/docker-entrypoint-initdb.d/` and runs every `.sql` file **
 docker compose up          # first run: scripts are executed
 ```
 
-If the volume already exists, Docker will **not** re-run the scripts. To force a re-initialization (deletes all data):
+If the volume already exists, Docker will **not** re-run the scripts. To force a re-initialization (⚠️ deletes all data):
 
 ```bash
 docker compose down -v
@@ -86,7 +86,7 @@ Created by `10_seed_data.sql`. **Password for all: `admin`** (BCrypt, strength 1
 | `dauphin` | `editor` | Dauphin |
 | `aras` | `editor` | Ara |
 
-> Demo credentials only. Change them before any non-local deployment.
+> ⚠️ Demo credentials only. Change them before any non-local deployment.
 
 ---
 

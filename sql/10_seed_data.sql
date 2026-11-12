@@ -15,7 +15,7 @@
 -- ------------------------------------------------------------
 -- Species
 -- ------------------------------------------------------------
-INSERT INTO peps.Species (id_species, species_name, description) VALUES
+INSERT INTO peps.Species (id_species, name, description) VALUES
     (1, 'Dauphin', 'Grand dauphin (Tursiops truncatus)'),
     (2, 'Ara',     'Ara bleu (Ara ararauna)')
 ON CONFLICT (id_species) DO NOTHING;
@@ -35,9 +35,9 @@ ON CONFLICT (login) DO NOTHING;
 INSERT INTO peps.User_Species (id_user, id_species)
 SELECT u.id_user, s.id_species
 FROM (VALUES ('dauphin', 'Dauphin'),
-             ('aras',    'Ara')) AS v(login, species_name)
+             ('aras',    'Ara')) AS v(login, name)
 JOIN peps.users   u ON u.login = v.login
-JOIN peps.Species s ON s.species_name = v.species_name
+JOIN peps.Species s ON s.name = v.name
 ON CONFLICT DO NOTHING;
 
 -- ------------------------------------------------------------
@@ -57,14 +57,14 @@ INSERT INTO peps.Sound (id_sound, name, sound_type, extension, minio_key, durati
 ON CONFLICT (id_sound) DO NOTHING;
 
 -- ------------------------------------------------------------
--- Playlists + Playlist_Sounds
+-- Playlists + Playlist_Sound
 -- ------------------------------------------------------------
 INSERT INTO peps.Playlist (id_playlist, name, playback_mode) VALUES
     (1, 'Playlist Dauphins', 'SEQUENTIAL'),
     (2, 'Playlist Aras',     'RANDOM')
 ON CONFLICT (id_playlist) DO NOTHING;
 
-INSERT INTO peps.Playlist_Sounds (id_playlist, id_sound, play_order) VALUES
+INSERT INTO peps.Playlist_Sound (id_playlist, id_sound, play_order) VALUES
     (1, 1, 1), (1, 2, 2), (1, 3, 3), (1, 4, 4), (1, 5, 5),
     (2, 6, 1), (2, 7, 2), (2, 8, 3), (2, 9, 4), (2, 10, 5)
 ON CONFLICT DO NOTHING;
