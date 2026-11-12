@@ -47,7 +47,7 @@ public class Interaction implements Serializable {
     private Date timeLancement;
     @JoinColumn(name = "idmodule", referencedColumnName = "idmodule")
     @ManyToOne
-    private Module idmodule;
+    private IoTModule idmodule;
     @JoinColumn(name = "idsound", referencedColumnName = "idsound")
     @ManyToOne
     private Sound idsound;
@@ -98,11 +98,11 @@ public class Interaction implements Serializable {
         this.timeLancement = timeLancement;
     }
 
-    public Module getIdmodule() {
+    public IoTModule getIdmodule() {
         return idmodule;
     }
 
-    public void setIdmodule(Module idmodule) {
+    public void setIdmodule(IoTModule idmodule) {
         this.idmodule = idmodule;
     }
 
