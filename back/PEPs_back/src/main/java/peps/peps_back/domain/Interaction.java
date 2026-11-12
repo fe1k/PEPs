@@ -1,147 +1,228 @@
-/**
- * @author BOUNOUA Ilyas and VAZEILLE Clément
- * @description This file defines the Interaction entity, which represents an interaction with a module.
- */
 package peps.peps_back.domain;
 
 import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Basic;
+import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
+/**
+ * Represents a physical interaction event triggered by an animal on an
+ * {@link IoTModule} (e.g., rope pull, spring trigger, contact sensor) and
+ * optionally linked to a played {@link Sound}, mapping to the {@code interaction} table.
+ *
+ * @author Franco Valdebenito
+ * @version 2.0
+ */
 @Entity
 @Table(name = "interaction")
-@NamedQuery(name = "Interaction.findAll", query = "SELECT i FROM Interaction i")
-@NamedQuery(name = "Interaction.findByIdinteraction", query = "SELECT i FROM Interaction i WHERE i.idinteraction = :idinteraction")
-@NamedQuery(name = "Interaction.findByTypeinteraction", query = "SELECT i FROM Interaction i WHERE i.typeinteraction = :typeinteraction")
-@NamedQuery(name = "Interaction.findByTimeLancement", query = "SELECT i FROM Interaction i WHERE i.timeLancement = :timeLancement")
 public class Interaction implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "idinteraction")
-    private Integer idinteraction;
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 50)
-    @Column(name = "typeinteraction")
-    private String typeinteraction;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "time_lancement")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timeLancement;
-    @JoinColumn(name = "idmodule", referencedColumnName = "idmodule")
-    @ManyToOne
-    private IoTModule idmodule;
-    @JoinColumn(name = "idsound", referencedColumnName = "idsound")
-    @ManyToOne
-    private Sound idsound;
 
     /**
-     * Owner role for filtering (multi-profile system).
-     * Stores the role name (e.g., 'dauphin', 'aras') for data isolation.
-     * 
-     * @author Anas EL HOUDI
+     * Unique primary identifier of the interaction event.
      */
-    @Column(name = "owner_role")
-    private String ownerRole;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_interaction")
+    private Integer interactionId;
 
+    /**
+     * Category or mechanical type of the physical interaction (maximum 50 characters).
+     */
+    @Column(name = "interaction_type", nullable = false, length = 50)
+    private String interactionType;
+
+    /**
+     * Timestamp indicating when the interaction occurred on the IoT module.
+     */
+    @Column(name = "triggered_at", nullable = false)
+    private LocalDateTime triggeredAt;
+
+    /**
+     * IoT module that detected and recorded this interaction event.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_module", nullable = false)
+    private IoTModule module;
+
+    /**
+     * Optional audio file triggered in response to this interaction.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sound")
+    private Sound sound;
+
+    /**
+     * Default no-argument constructor required by the JPA specification.
+     */
     public Interaction() {
     }
 
-    public Interaction(Integer idinteraction) {
-        this.idinteraction = idinteraction;
+    /**
+     * Constructs a new {@code Interaction} instance with the specified type, source module,
+     * and optional triggered sound.
+     *
+     * @param interactionType the physical interaction type; must not be {@code null}
+     * @param module          the {@link IoTModule} that recorded the event; must not be {@code null}
+     * @param sound           the {@link Sound} triggered by the event, or {@code null} if silent
+     */
+    public Interaction(String interactionType, IoTModule module, Sound sound) {
+        this.interactionType = interactionType;
+        this.module = module;
+        this.sound = sound;
     }
 
-    public Interaction(Integer idinteraction, String typeinteraction, Date timeLancement) {
-        this.idinteraction = idinteraction;
-        this.typeinteraction = typeinteraction;
-        this.timeLancement = timeLancement;
+    /**
+     * Automatically sets {@code triggeredAt} to the current timestamp before persisting
+     * if no explicit timestamp was provided by the IoT device.
+     */
+    @PrePersist
+    protected void onCreate() {
+        if (this.triggeredAt == null) {
+            this.triggeredAt = LocalDateTime.now();
+        }
     }
 
-    public Integer getIdinteraction() {
-        return idinteraction;
+    /**
+     * Returns the unique identifier of this interaction.
+     *
+     * @return the primary key {@code interactionId}, or {@code null} if not yet persisted
+     */
+    public Integer getInteractionId() {
+        return interactionId;
     }
 
-    public void setIdinteraction(Integer idinteraction) {
-        this.idinteraction = idinteraction;
+    /**
+     * Sets the unique identifier of this interaction.
+     *
+     * @param interactionId the primary key to assign
+     */
+    public void setInteractionId(Integer interactionId) {
+        this.interactionId = interactionId;
     }
 
-    public String getTypeinteraction() {
-        return typeinteraction;
+    /**
+     * Returns the type of physical interaction recorded.
+     *
+     * @return the interaction type string
+     */
+    public String getInteractionType() {
+        return interactionType;
     }
 
-    public void setTypeinteraction(String typeinteraction) {
-        this.typeinteraction = typeinteraction;
+    /**
+     * Sets the type of physical interaction recorded.
+     *
+     * @param interactionType the interaction type to assign (maximum 50 characters)
+     */
+    public void setInteractionType(String interactionType) {
+        this.interactionType = interactionType;
     }
 
-    public Date getTimeLancement() {
-        return timeLancement;
+    /**
+     * Returns the timestamp when the interaction was triggered.
+     *
+     * @return the event {@code LocalDateTime}
+     */
+    public LocalDateTime getTriggeredAt() {
+        return triggeredAt;
     }
 
-    public void setTimeLancement(Date timeLancement) {
-        this.timeLancement = timeLancement;
+    /**
+     * Sets the timestamp when the interaction was triggered.
+     *
+     * @param triggeredAt the event {@code LocalDateTime} to assign
+     */
+    public void setTriggeredAt(LocalDateTime triggeredAt) {
+        this.triggeredAt = triggeredAt;
     }
 
-    public IoTModule getIdmodule() {
-        return idmodule;
+    /**
+     * Returns the IoT module that generated this interaction.
+     *
+     * @return the parent {@link IoTModule}
+     */
+    public IoTModule getModule() {
+        return module;
     }
 
-    public void setIdmodule(IoTModule idmodule) {
-        this.idmodule = idmodule;
+    /**
+     * Sets the IoT module that generated this interaction.
+     *
+     * @param module the parent {@link IoTModule} to assign
+     */
+    public void setModule(IoTModule module) {
+        this.module = module;
     }
 
-    public Sound getIdsound() {
-        return idsound;
+    /**
+     * Returns the sound triggered by this interaction, if any.
+     *
+     * @return the triggered {@link Sound}, or {@code null} if no sound was played
+     */
+    public Sound getSound() {
+        return sound;
     }
 
-    public void setIdsound(Sound idsound) {
-        this.idsound = idsound;
+    /**
+     * Sets the sound triggered by this interaction.
+     *
+     * @param sound the {@link Sound} to assign, or {@code null} if none
+     */
+    public void setSound(Sound sound) {
+        this.sound = sound;
     }
 
-    public String getOwnerRole() {
-        return ownerRole;
-    }
-
-    public void setOwnerRole(String ownerRole) {
-        this.ownerRole = ownerRole;
-    }
-
+    /**
+     * Compares this interaction to another object for equality based on {@code interactionId}.
+     *
+     * @param o the reference object with which to compare
+     * @return {@code true} if both objects represent the same persisted interaction; {@code false} otherwise
+     */
     @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (idinteraction != null ? idinteraction.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof Interaction)) {
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Interaction other = (Interaction) object;
-        return !((this.idinteraction == null && other.idinteraction != null)
-                || (this.idinteraction != null && !this.idinteraction.equals(other.idinteraction)));
+        Interaction that = (Interaction) o;
+        return Objects.equals(interactionId, that.interactionId);
     }
 
+    /**
+     * Returns a hash code value for this interaction based on {@code interactionId}.
+     *
+     * @return the hash code value
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(interactionId);
+    }
+
+    /**
+     * Returns a string representation of this {@code Interaction} entity without
+     * triggering lazy-loaded associations.
+     *
+     * @return a formatted string containing the interaction ID, type, and timestamp
+     */
     @Override
     public String toString() {
-        return "peps.peps_back.items.Interaction[ idinteraction=" + idinteraction + " ]";
+        return "Interaction{" +
+                "interactionId=" + interactionId +
+                ", interactionType='" + interactionType + '\'' +
+                ", triggeredAt=" + triggeredAt +
+                '}';
     }
-
 }
