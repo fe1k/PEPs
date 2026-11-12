@@ -1,106 +1,130 @@
 # Database — SQL Scripts
 
-This directory contains all SQL scripts for the PostgreSQL database.
-Docker automatically runs the numbered scripts at container startup **in alphanumeric order**.
-
-> ⚠️ **The schema is frozen.** No structural changes are planned. Do not modify these scripts unless you know what you are doing.
+This directory contains the SQL scripts that initialize the PostgreSQL database.
+Docker mounts it as `/docker-entrypoint-initdb.d/` and runs every `.sql` file **in alphanumeric order**, **only on a fresh/empty volume**.
 
 ---
 
 ## How It Works (Fresh Install)
 
-When you run `docker compose up` for the first time (or after `docker compose down -v`), Docker mounts the entire `./sql` directory into the container's `/docker-entrypoint-initdb.d/` folder.  
-PostgreSQL executes every `.sql` file it finds there, **in alphanumeric order**, only on a **fresh/empty volume**.
+```bash
+docker compose up          # first run: scripts are executed
+```
 
-> 🔁 If the volume already exists (i.e., you have already run the project before), Docker will **not** re-run these scripts. To force a re-initialization, destroy the volume first:
-> ```bash
-> docker compose down -v
-> docker compose up
-> ```
+If the volume already exists, Docker will **not** re-run the scripts. To force a re-initialization (deletes all data):
+
+```bash
+docker compose down -v
+docker compose up
+```
 
 ---
 
 ## Script Execution Order
 
-| File | Run by Docker? | Purpose |
-|------|---------------|---------|
-| `00_schema.sql` | ✅ Auto | Creates the `peps` schema |
-| `01_create_tables.sql` | ✅ Auto | Creates all tables (Module, Sound, Interaction, Users, audit_logs) |
-| `02_migration_owner.sql` | ✅ Auto | Adds `owner_role` column — historical migration, safe to re-run (uses ALTER) |
-| `03_trigger.sql` | ✅ Auto | Creates the cascade trigger for `owner_role` on user role changes |
-| `04_correction.sql` | ✅ Auto | Data correction: normalizes legacy `admin` → `aras` role values |
-| `05_normalization.sql` | ✅ Auto | Normalizes all `owner_role` values to lowercase |
-| `99_restore_data.sql` | ✅ Auto | Inserts the base dataset (sanitized export from remote DB) |
-| `100_archive_audit.sql` | ✅ Auto | Creates archive/audit test data |
-| `101_archive_test.sql` | ✅ Auto | Inserts additional archive test records |
+| File | Purpose | Idempotent |
+|------|---------|-----------|
+| `00_schema.sql` | Creates the `peps` schema | ✅ |
+| `01_create_tables.sql` | Creates all tables, PKs, FKs and constraints (matches the MPD) | ❌ (fresh DB only) |
+| `10_seed_data.sql` | Base / demo dataset: species, users, playlists, sounds, modules, interactions | ✅ |
+| `20_seed_archive_test.sql` | Test data for the archive feature (old + recent audit logs and interactions) | ❌ |
 
-> 📌 Files ending in `.disabled` or without a `.sql` extension are **ignored** by Docker.
+### Naming convention
+
+- Always use a **2-digit prefix** (`00`–`99`). Docker sorts as text, so `100_x.sql` would run **before** `10_x.sql` and `99_x.sql`.
+- Leave gaps between numbers (`00`, `01`, `10`, `20`…) so new scripts can be inserted without renaming.
+- Ranges: `0x` = structure, `1x` = base data, `2x` = test data.
+- Files without the `.sql` extension (e.g. `.sql.disabled`) are ignored by Docker.
 
 ---
 
-## Table Overview
+## Data Model
 
 ```
-peps.users          → Application users (login, password_hash, role, enabled)
-peps.Module         → IoT modules (IP, status, volume, mode, owner_role)
-peps.Sound          → Sound files (name, type, path, owner_role)
-peps.Interaction    → Logs of module/sound interactions (owner_role)
-peps.audit_logs     → Audit trail for archive feature (action, entity, user, timestamp)
+peps.species                  → Animal species (Dauphin, Ara…)
+peps.users                    → Application users (login, password_hash, role, is_active)
+peps.user_species             → N:N — which species each user can access
+peps.playlist                 → Playlists (name, playback_mode)
+peps.sound                    → Sound files (type, extension, minio_key, duration)
+peps.playlist_sounds          → N:N — ordered sounds in a playlist (play_order)
+peps.iot_module               → IoT modules (IP, status, battery, volume, mode) → species, playlist
+peps.interaction              → Animal interactions with a module (type, timestamp) → module, sound
+peps.observation_measurement  → Observations / measurements (numeric, text or jsonb) → species, user, module
+peps.audit_log                → Audit trail used by the archive feature → user
 ```
 
-Key design decisions:
-- All tables live under the **`peps` schema** (not `public`)
-- Ownership is tracked via **`owner_role`** (role-based, not user-id-based) — see `02_migration_owner.sql` for the migration history
-- `Module` and `Sound` have a **`version` column** for optimistic locking in the Java backend
-- A **trigger** (`trigger_cascade_owner_role`) automatically propagates role changes from `users` to all dependent tables
+### Key design decisions
+
+- All tables live in the **`peps` schema** (not `public`).
+- Unquoted identifiers are folded to lowercase by PostgreSQL: `peps.IoT_Module` is stored as `peps.iot_module`. Use lowercase names in JPA (`@Table(name = "iot_module", schema = "peps")`).
+- The user table is named **`users`** because `user` is a reserved word in PostgreSQL.
+- **Access is species-based**: a user sees the data of the species linked to them in `user_species`. There is no denormalized `owner_role` column anymore, so no trigger is needed to keep copies in sync.
+- `playlist_sounds` primary key is `(id_playlist, play_order)`: a sound can appear several times in the same playlist.
+- `species.species_name` is `UNIQUE` (alternate key), not part of the primary key.
+
+### Delete behavior
+
+| When deleting… | Effect |
+|---|---|
+| a **species** | Blocked (`RESTRICT`) if modules or observations reference it |
+| a **playlist** | Modules keep existing with `id_playlist = NULL`; its `playlist_sounds` rows are deleted |
+| a **sound** | Removed from playlists; interactions keep existing with `id_sound = NULL` |
+| a **module** | Interactions and observations are kept with `id_module = NULL` |
+| a **user** | `user_species` rows are deleted; observations and audit logs are kept with `id_user = NULL` |
+
+Historical data (interactions, observations, audit logs) is never cascade-deleted.
+
+---
+
+## Demo Users
+
+Created by `10_seed_data.sql`. **Password for all: `admin`** (BCrypt, strength 10).
+
+| Login | Role | Species |
+|-------|------|---------|
+| `admin` | `admin` | — (all) |
+| `dauphin` | `editor` | Dauphin |
+| `aras` | `editor` | Ara |
+
+> Demo credentials only. Change them before any non-local deployment.
+
+---
+
+## Archive Test Data
+
+`20_seed_archive_test.sql` uses dates **relative to `NOW()`**, so the dataset stays valid whenever the DB is created:
+
+- **Archivable** (older than 3 months): 9 audit logs, 18 interactions (+ the 4 demo interactions from `10_seed_data.sql`)
+- **Not archivable** (recent): 2 audit logs, 2 interactions — used to check the archive does not touch recent data
+
+Do not run it twice on the same database: rows would be duplicated.
 
 ---
 
 ## Validating After Startup
 
-After running `docker compose up`, you can verify the DB is correctly initialized:
-
 ```bash
-# Connect to the running container
 docker exec -it peps-database psql -U <DB_USER> -d <DB_NAME>
+```
 
-# Inside psql — check all tables exist
-\dt peps.*
+```sql
+\dt peps.*                                   -- 10 tables expected
 
-# Check some data loaded correctly
-SELECT COUNT(*) FROM peps.users;
-SELECT COUNT(*) FROM peps.Module;
-SELECT COUNT(*) FROM peps.Sound;
+SELECT COUNT(*) FROM peps.users;             -- 3
+SELECT COUNT(*) FROM peps.iot_module;        -- 7
+SELECT COUNT(*) FROM peps.sound;             -- 10
 
-# Check trigger exists
-SELECT trigger_name FROM information_schema.triggers WHERE trigger_name = 'trigger_cascade_owner_role';
-
-# Exit
-\q
+-- Users and their species
+SELECT u.login, u.role, s.species_name
+FROM peps.users u
+LEFT JOIN peps.user_species us USING (id_user)
+LEFT JOIN peps.species s USING (id_species);
 ```
 
 Replace `<DB_USER>` and `<DB_NAME>` with the values from your `.env` file.
 
 ---
 
-## Migration History (For Reference Only)
+## History
 
-The following scripts document **past migrations** applied to the remote database.
-They are included in the auto-run sequence and are **idempotent** (safe to run on an empty DB), but they were originally created to patch a live database:
-
-| Script | What happened |
-|--------|--------------|
-| `02_migration_owner.sql` | Replaced `owner_id` (FK to users) with `owner_role` (string role) across all tables |
-| `04_correction.sql` | Fixed legacy `admin` role values that should have been `aras` |
-| `05_normalization.sql` | Forced all `owner_role` values to lowercase (backend expects lowercase) |
-
----
-
-## The Data File (`99_restore_data.sql`)
-
-This file is a **sanitized dump** from the remote production database. It was processed to:
-1. Remap all `public.` schema references → `peps.`
-2. Fix sequence names (`user_id_seq` → `users_id_user_seq`)
-3. Remove `SET transaction_timeout` (incompatible with PostgreSQL 15)
-
-This file should **not be manually edited**. If a fresh data export is needed in the future, follow the same sanitization steps.
+The previous schema (role-based ownership with `owner_role`, cascade trigger, patch scripts `02`–`06`, `98`–`101`) was replaced by this version. These scripts patched a live database and are no longer needed for a fresh install. They remain available in the git history.
