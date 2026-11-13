@@ -15,15 +15,15 @@ import javax.persistence.UniqueConstraint;
 
 /**
  * Associative entity linking a {@link Playlist} with a {@link Sound} and defining
- * its playback sequence position, mapping to the {@code playlist_sounds} table.
+ * its playback sequence position, mapping to the {@code peps.playlist_sound} table.
  *
  * @author Franco Valdebenito
- * @version 1.0
+ * @version 1.1
  */
 @Entity
 @Table(
         name = "playlist_sound",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"id_playlist", "id_sound"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_playlist", "play_order"})
 )
 public class PlaylistSound implements Serializable {
 
