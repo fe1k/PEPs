@@ -14,7 +14,7 @@ import javax.persistence.Table;
  * (e.g., Macaws, Saimiris, Dolphins) and maps to the {@code peps.species} table.
  *
  * @author Franco Valdebenito
- * @version 1.0
+ * @version 1.1
  */
 @Entity
 @Table(name = "species")
@@ -33,8 +33,8 @@ public class Species implements Serializable {
     /**
      * Unique display name of the species (maximum 50 characters).
      */
-    @Column(name = "species_name", nullable = false, unique = true, length = 50)
-    private String speciesName;
+    @Column(name = "name", nullable = false, unique = true, length = 50)
+    private String name;
 
     /**
      * Detailed description of the species and its enrichment context.
@@ -51,11 +51,11 @@ public class Species implements Serializable {
     /**
      * Constructs a new {@code Species} instance with the specified name and description.
      *
-     * @param speciesName the unique name of the species; must not be {@code null}
+     * @param name        the unique name of the species; must not be {@code null}
      * @param description an optional textual description of the species
      */
-    public Species(String speciesName, String description) {
-        this.speciesName = speciesName;
+    public Species(String name, String description) {
+        this.name = name;
         this.description = description;
     }
 
@@ -82,17 +82,17 @@ public class Species implements Serializable {
      *
      * @return the species name
      */
-    public String getSpeciesName() {
-        return speciesName;
+    public String getName() {
+        return name;
     }
 
     /**
      * Sets the unique name of this species.
      *
-     * @param speciesName the species name to set (maximum 50 characters)
+     * @param name the species name to set (maximum 50 characters)
      */
-    public void setSpeciesName(String speciesName) {
-        this.speciesName = speciesName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -150,7 +150,7 @@ public class Species implements Serializable {
     public String toString() {
         return "Species{" +
                 "speciesId=" + speciesId +
-                ", speciesName='" + speciesName + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

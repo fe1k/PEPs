@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit tests for the {@link Species} domain entity.
  *
  * @author Franco Valdebenito
- * @version 1.0
+ * @version 1.1
  */
 class SpeciesTest {
 
@@ -33,17 +33,17 @@ class SpeciesTest {
         Species emptySpecies = new Species();
 
         assertNull(emptySpecies.getSpeciesId());
-        assertNull(emptySpecies.getSpeciesName());
+        assertNull(emptySpecies.getName());
         assertNull(emptySpecies.getDescription());
     }
 
     @Test
-    @DisplayName("Parameterized constructor should assign speciesName and description")
+    @DisplayName("Parameterized constructor should assign name and description")
     void testParameterizedConstructor() {
         Species saimiris = new Species("Saimiris", "Manual behavioral observation entry forms");
 
         assertNull(saimiris.getSpeciesId());
-        assertEquals("Saimiris", saimiris.getSpeciesName());
+        assertEquals("Saimiris", saimiris.getName());
         assertEquals("Manual behavioral observation entry forms", saimiris.getDescription());
     }
 
@@ -51,15 +51,15 @@ class SpeciesTest {
     @DisplayName("Getters and setters should read and update all entity attributes")
     void testGettersAndSetters() {
         assertEquals(1, species.getSpeciesId());
-        assertEquals("Macaws", species.getSpeciesName());
+        assertEquals("Macaws", species.getName());
         assertEquals("Interactive sound modules and playlist management", species.getDescription());
 
         species.setSpeciesId(3);
-        species.setSpeciesName("Dolphins");
+        species.setName("Dolphins");
         species.setDescription("Automated external network ingestion and pool metrics");
 
         assertEquals(3, species.getSpeciesId());
-        assertEquals("Dolphins", species.getSpeciesName());
+        assertEquals("Dolphins", species.getName());
         assertEquals("Automated external network ingestion and pool metrics", species.getDescription());
     }
 
@@ -104,12 +104,12 @@ class SpeciesTest {
     }
 
     @Test
-    @DisplayName("toString() should format speciesId and speciesName without errors")
+    @DisplayName("toString() should format speciesId and name without errors")
     void testToString() {
-        String expected = "Species{speciesId=1, speciesName='Macaws'}";
+        String expected = "Species{speciesId=1, name='Macaws'}";
         assertEquals(expected, species.toString());
 
         Species transientSpecies = new Species();
-        assertEquals("Species{speciesId=null, speciesName='null'}", transientSpecies.toString());
+        assertEquals("Species{speciesId=null, name='null'}", transientSpecies.toString());
     }
 }
