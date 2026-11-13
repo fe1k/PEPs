@@ -69,7 +69,7 @@ public class ObservationMeasurement implements Serializable {
     /**
      * Optional serialized JSON payload for flexible multi-parameter external data.
      */
-    @Column(name = "json_data", columnDefinition = "TEXT")
+    @Column(name = "json_data", columnDefinition = "JSONB")
     private String jsonData;
 
     /**
