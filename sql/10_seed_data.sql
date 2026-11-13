@@ -3,9 +3,9 @@
 -- Données de base / démo, compatibles avec 01_create_tables.sql
 --
 -- Utilisateurs de démo (mot de passe : "admin" pour tous)
---   admin   → role admin   (accès à toutes les espèces)
---   dauphin → role editor  (espèce Dauphin)
---   aras    → role editor  (espèce Ara)
+--   admin   → ROLE_ADMIN    (Macaws, Saimiris, Dolphins)
+--   dauphin → ROLE_SOIGNEUR (Dolphins)
+--   aras    → ROLE_SOIGNEUR (Macaws)
 -- Hash BCrypt (strength 10) vérifié pour "admin".
 -- Mots de passe de démo uniquement — à changer hors dev.
 --
@@ -16,17 +16,18 @@
 -- Species
 -- ------------------------------------------------------------
 INSERT INTO peps.Species (id_species, name, description) VALUES
-    (1, 'Dauphin', 'Grand dauphin (Tursiops truncatus)'),
-    (2, 'Ara',     'Ara bleu (Ara ararauna)')
+    (1, 'Macaws',   'Aras (Ara ararauna, Ara macao…)'),
+    (2, 'Saimiris', 'Saïmiris (Saimiri sciureus)'),
+    (3, 'Dolphins', 'Grands dauphins (Tursiops truncatus)')
 ON CONFLICT (id_species) DO NOTHING;
 
 -- ------------------------------------------------------------
 -- Users
 -- ------------------------------------------------------------
 INSERT INTO peps.users (login, password_hash, role, is_active) VALUES
-    ('admin',   '$2a$10$addEtMm/UEHiwBiVDQ9N8OT0OLfsGAwhnu03mUz.oJ1wMvlGhlS5C', 'admin',  true),
-    ('dauphin', '$2a$10$addEtMm/UEHiwBiVDQ9N8OT0OLfsGAwhnu03mUz.oJ1wMvlGhlS5C', 'editor', true),
-    ('aras',    '$2a$10$addEtMm/UEHiwBiVDQ9N8OT0OLfsGAwhnu03mUz.oJ1wMvlGhlS5C', 'editor', true)
+    ('admin',   '$2a$10$addEtMm/UEHiwBiVDQ9N8OT0OLfsGAwhnu03mUz.oJ1wMvlGhlS5C', 'ROLE_ADMIN',    true),
+    ('dauphin', '$2a$10$addEtMm/UEHiwBiVDQ9N8OT0OLfsGAwhnu03mUz.oJ1wMvlGhlS5C', 'ROLE_SOIGNEUR', true),
+    ('aras',    '$2a$10$addEtMm/UEHiwBiVDQ9N8OT0OLfsGAwhnu03mUz.oJ1wMvlGhlS5C', 'ROLE_SOIGNEUR', true)
 ON CONFLICT (login) DO NOTHING;
 
 -- ------------------------------------------------------------
@@ -34,8 +35,11 @@ ON CONFLICT (login) DO NOTHING;
 -- ------------------------------------------------------------
 INSERT INTO peps.User_Species (id_user, id_species)
 SELECT u.id_user, s.id_species
-FROM (VALUES ('dauphin', 'Dauphin'),
-             ('aras',    'Ara')) AS v(login, name)
+FROM (VALUES ('admin',   'Macaws'),
+             ('admin',   'Saimiris'),
+             ('admin',   'Dolphins'),
+             ('dauphin', 'Dolphins'),
+             ('aras',    'Macaws')) AS v(login, name)
 JOIN peps.users   u ON u.login = v.login
 JOIN peps.Species s ON s.name = v.name
 ON CONFLICT DO NOTHING;
@@ -73,13 +77,13 @@ ON CONFLICT DO NOTHING;
 -- IoT_Module
 -- ------------------------------------------------------------
 INSERT INTO peps.IoT_Module (id_module, name, ip_address, status, battery_level, volume, current_mode, is_active, last_seen_at, id_species, id_playlist) VALUES
-    (1, 'Module Bassin Principal',     '192.168.2.10', 'actif',   87,   90, 'Automatique', true,  '2026-01-21 15:23:40', 1, 1),
-    (2, 'Module Zone Repos',           '192.168.2.11', 'actif',   64,   50, 'Manuel',      true,  '2026-01-21 15:13:40', 1, 1),
-    (3, 'Module Piscine Entrainement', '192.168.2.12', 'actif',   92,   70, 'Automatique', true,  '2026-01-21 15:27:40', 1, 1),
-    (4, 'Module Volière Ara',          '192.168.3.10', 'actif',   78,   75, 'Automatique', true,  '2026-01-30 11:10:19', 2, 2),
-    (5, 'Module Perchoir Ara',         '192.168.3.11', 'actif',   45,   60, 'Manuel',      true,  '2026-01-21 15:53:44', 2, 2),
-    (6, 'Module Cage Principale',      '192.168.3.12', 'actif',   81,   85, 'Automatique', true,  '2026-01-21 15:23:40', 2, 2),
-    (7, 'GESTION ARAS',                '192.168.1.1',  'inactif', NULL, 50, 'Manuel',      false, '2026-01-21 15:36:34', 2, NULL)
+    (1, 'Module Bassin Principal',     '192.168.2.10', 'ONLINE',  87,   90, 'AUTOMATIC',   true,  '2026-01-21 15:23:40', 3, 1),
+    (2, 'Module Zone Repos',           '192.168.2.11', 'ONLINE',  64,   50, 'MANUAL',      true,  '2026-01-21 15:13:40', 3, 1),
+    (3, 'Module Piscine Entrainement', '192.168.2.12', 'ONLINE',  92,   70, 'AUTOMATIC',   true,  '2026-01-21 15:27:40', 3, 1),
+    (4, 'Module Volière Ara',          '192.168.3.10', 'ONLINE',  78,   75, 'AUTOMATIC',   true,  '2026-01-30 11:10:19', 1, 2),
+    (5, 'Module Perchoir Ara',         '192.168.3.11', 'ONLINE',  45,   60, 'MANUAL',      true,  '2026-01-21 15:53:44', 1, 2),
+    (6, 'Module Cage Principale',      '192.168.3.12', 'ONLINE',  81,   85, 'AUTOMATIC',   true,  '2026-01-21 15:23:40', 1, 2),
+    (7, 'GESTION ARAS',                '192.168.1.1',  'OFFLINE', NULL, 50, 'MANUAL',      false, '2026-01-21 15:36:34', 1, NULL)
 ON CONFLICT (id_module) DO NOTHING;
 
 -- ------------------------------------------------------------

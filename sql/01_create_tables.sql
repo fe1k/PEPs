@@ -18,7 +18,7 @@ CREATE TABLE peps.Users (
     id_user       SERIAL PRIMARY KEY,
     login         varchar(50)  NOT NULL UNIQUE,
     password_hash varchar(255) NOT NULL,
-    role          varchar(50),
+    role          varchar(50)  NOT NULL,
     is_active     boolean   NOT NULL DEFAULT true,
     created_at    timestamp NOT NULL DEFAULT NOW(),
     updated_at    timestamp NOT NULL DEFAULT NOW()
@@ -43,9 +43,9 @@ CREATE TABLE peps.IoT_Module (
     volume        integer      NOT NULL,
     current_mode  varchar(50)  NOT NULL,
     is_active     boolean      NOT NULL DEFAULT true,
-    last_seen_at  timestamp,
+    last_seen_at  timestamp NOT NULL DEFAULT NOW(),
     id_species    integer NOT NULL,
-    id_playlist   integer,
+    id_playlist   integer,    
 
     CONSTRAINT fk_module_species
         FOREIGN KEY (id_species) REFERENCES peps.Species(id_species)
@@ -59,12 +59,12 @@ CREATE TABLE peps.Interaction (
     id_interaction   SERIAL PRIMARY KEY,
     interaction_type varchar(50) NOT NULL,
     triggered_at     timestamp   NOT NULL DEFAULT NOW(),
-    id_module        integer,
+    id_module        integer NOT NULL,
     id_sound         integer,
 
     CONSTRAINT fk_interaction_module
         FOREIGN KEY (id_module) REFERENCES peps.IoT_Module(id_module)
-        ON DELETE SET NULL,
+        ON DELETE RESTRICT,
     CONSTRAINT fk_interaction_sound
         FOREIGN KEY (id_sound) REFERENCES peps.Sound(id_sound)
         ON DELETE SET NULL
@@ -124,7 +124,7 @@ CREATE TABLE peps.Observation_Measurement (
 CREATE TABLE peps.Audit_Log (
     id_log      SERIAL PRIMARY KEY,
     action      varchar(50) NOT NULL,
-    entity_type varchar(50) NOT NULL,
+    entity_type varchar(50),
     entity_id   integer,
     logged_at   timestamp NOT NULL DEFAULT NOW(),
     details     TEXT,

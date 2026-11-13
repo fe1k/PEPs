@@ -20,13 +20,13 @@ INSERT INTO peps.Audit_Log (action, entity_type, entity_id, logged_at, details, 
 SELECT v.action, v.entity_type, v.entity_id, NOW() - v.age, v.details, u.id_user
 FROM (VALUES
     -- Archivables
-    ('CREATE', 'module', 1,  INTERVAL '4 months',  'Création du module "Module Bassin Principal" (Dauphin)', 'admin'),
+    ('CREATE', 'module', 1,  INTERVAL '4 months',  'Création du module "Module Bassin Principal" (Dolphins)', 'admin'),
     ('UPDATE', 'sound',  2,  INTERVAL '5 months',  'Sound "Clics de Dauphin" : type Ambiance → Vocal',        'dauphin'),
     ('DELETE', 'module', 99, INTERVAL '6 months',  'Suppression du module obsolète "Module Test"',           'admin'),
-    ('CREATE', 'sound',  10, INTERVAL '7 months',  'Ajout du son "Forêt Tropicale" (Ara)',                   'aras'),
-    ('UPDATE', 'module', 5,  INTERVAL '8 months',  'Module "Module Perchoir Ara" : mode Manuel → Automatique','admin'),
-    ('CREATE', 'user',   3,  INTERVAL '9 months',  'Création du compte "aras" (role editor)',                'admin'),
-    ('UPDATE', 'user',   2,  INTERVAL '10 months', 'Compte "dauphin" : role viewer → editor',                'admin'),
+    ('CREATE', 'sound',  10, INTERVAL '7 months',  'Ajout du son "Forêt Tropicale" (Macaws)',                   'aras'),
+    ('UPDATE', 'module', 5,  INTERVAL '8 months',  'Module "Module Perchoir Ara" : mode MANUAL → AUTOMATIC','admin'),
+    ('CREATE', 'user',   3,  INTERVAL '9 months',  'Création du compte "aras" (ROLE_SOIGNEUR)',                'admin'),
+    ('UPDATE', 'user',   2,  INTERVAL '10 months', 'Compte "dauphin" : role ROLE_CHERCHEUR → ROLE_SOIGNEUR',                'admin'),
     ('DELETE', 'sound',  98, INTERVAL '11 months', 'Suppression du son vocal obsolète "Son Ancien"',         'dauphin'),
     ('CREATE', 'module', 7,  INTERVAL '12 months', 'Création du module "GESTION ARAS"',                      'admin'),
     -- Non archivables (récents)
@@ -52,29 +52,29 @@ WITH target AS (
 INSERT INTO peps.Interaction (interaction_type, triggered_at, id_module, id_sound)
 SELECT v.interaction_type, NOW() - v.age, t.id_module, t.id_sound
 FROM (VALUES
-    -- Dauphin : archivables
-    ('Dauphin', 'Head',  INTERVAL '4 months'),
-    ('Dauphin', 'Tail',  INTERVAL '5 months'),
-    ('Dauphin', 'Head',  INTERVAL '6 months'),
-    ('Dauphin', 'Tail',  INTERVAL '7 months'),
-    ('Dauphin', 'Head',  INTERVAL '8 months'),
-    ('Dauphin', 'Tail',  INTERVAL '9 months'),
-    ('Dauphin', 'Head',  INTERVAL '10 months'),
-    ('Dauphin', 'Tail',  INTERVAL '11 months'),
-    ('Dauphin', 'Head',  INTERVAL '12 months'),
-    -- Ara : archivables
-    ('Ara',     'Bec',   INTERVAL '4 months'),
-    ('Ara',     'Patte', INTERVAL '5 months'),
-    ('Ara',     'Bec',   INTERVAL '6 months'),
-    ('Ara',     'Patte', INTERVAL '7 months'),
-    ('Ara',     'Bec',   INTERVAL '8 months'),
-    ('Ara',     'Patte', INTERVAL '9 months'),
-    ('Ara',     'Bec',   INTERVAL '10 months'),
-    ('Ara',     'Patte', INTERVAL '11 months'),
-    ('Ara',     'Bec',   INTERVAL '12 months'),
+    -- Dolphins : archivables
+    ('Dolphins', 'Head',  INTERVAL '4 months'),
+    ('Dolphins', 'Tail',  INTERVAL '5 months'),
+    ('Dolphins', 'Head',  INTERVAL '6 months'),
+    ('Dolphins', 'Tail',  INTERVAL '7 months'),
+    ('Dolphins', 'Head',  INTERVAL '8 months'),
+    ('Dolphins', 'Tail',  INTERVAL '9 months'),
+    ('Dolphins', 'Head',  INTERVAL '10 months'),
+    ('Dolphins', 'Tail',  INTERVAL '11 months'),
+    ('Dolphins', 'Head',  INTERVAL '12 months'),
+    -- Macaws : archivables
+    ('Macaws',   'Bec',   INTERVAL '4 months'),
+    ('Macaws',   'Patte', INTERVAL '5 months'),
+    ('Macaws',   'Bec',   INTERVAL '6 months'),
+    ('Macaws',   'Patte', INTERVAL '7 months'),
+    ('Macaws',   'Bec',   INTERVAL '8 months'),
+    ('Macaws',   'Patte', INTERVAL '9 months'),
+    ('Macaws',   'Bec',   INTERVAL '10 months'),
+    ('Macaws',   'Patte', INTERVAL '11 months'),
+    ('Macaws',   'Bec',   INTERVAL '12 months'),
     -- Non archivables (récentes)
-    ('Dauphin', 'Head',  INTERVAL '2 weeks'),
-    ('Ara',     'Bec',   INTERVAL '1 month')
+    ('Dolphins', 'Head',  INTERVAL '2 weeks'),
+    ('Macaws',   'Bec',   INTERVAL '1 month')
 ) AS v(name, interaction_type, age)
 JOIN target t ON t.name = v.name;
 

@@ -41,12 +41,12 @@ docker compose up
 ## Data Model
 
 ```
-peps.species                  → Animal species (Dauphin, Ara…)
+peps.species                  → Animal species (Macaws, Saimiris, Dolphins)
 peps.users                    → Application users (login, password_hash, role, is_active)
 peps.user_species             → N:N — which species each user can access
 peps.playlist                 → Playlists (name, playback_mode)
 peps.sound                    → Sound files (type, extension, minio_key, duration)
-peps.playlist_sounds          → N:N — ordered sounds in a playlist (play_order)
+peps.playlist_sound           → N:N — ordered sounds in a playlist (play_order)
 peps.iot_module               → IoT modules (IP, status, battery, volume, mode) → species, playlist
 peps.interaction              → Animal interactions with a module (type, timestamp) → module, sound
 peps.observation_measurement  → Observations / measurements (numeric, text or jsonb) → species, user, module
@@ -59,17 +59,17 @@ peps.audit_log                → Audit trail used by the archive feature → us
 - Unquoted identifiers are folded to lowercase by PostgreSQL: `peps.IoT_Module` is stored as `peps.iot_module`. Use lowercase names in JPA (`@Table(name = "iot_module", schema = "peps")`).
 - The user table is named **`users`** because `user` is a reserved word in PostgreSQL.
 - **Access is species-based**: a user sees the data of the species linked to them in `user_species`. There is no denormalized `owner_role` column anymore, so no trigger is needed to keep copies in sync.
-- `playlist_sounds` primary key is `(id_playlist, play_order)`: a sound can appear several times in the same playlist.
-- `species.species_name` is `UNIQUE` (alternate key), not part of the primary key.
+- `playlist_sound` has a surrogate key (`id_playlist_sound`) and a `UNIQUE (id_playlist, play_order)` constraint: one sound per position, but a sound can appear several times in the same playlist.
+- `species.name` is `UNIQUE` (alternate key), not part of the primary key.
 
 ### Delete behavior
 
 | When deleting… | Effect |
 |---|---|
 | a **species** | Blocked (`RESTRICT`) if modules or observations reference it |
-| a **playlist** | Modules keep existing with `id_playlist = NULL`; its `playlist_sounds` rows are deleted |
+| a **playlist** | Modules keep existing with `id_playlist = NULL`; its `playlist_sound` rows are deleted |
 | a **sound** | Removed from playlists; interactions keep existing with `id_sound = NULL` |
-| a **module** | Interactions and observations are kept with `id_module = NULL` |
+| a **module** | Blocked (`RESTRICT`) if it has interactions: modules are deactivated with `is_active = false` instead (soft delete). Observations are kept with `id_module = NULL` |
 | a **user** | `user_species` rows are deleted; observations and audit logs are kept with `id_user = NULL` |
 
 Historical data (interactions, observations, audit logs) is never cascade-deleted.
@@ -82,9 +82,12 @@ Created by `10_seed_data.sql`. **Password for all: `admin`** (BCrypt, strength 1
 
 | Login | Role | Species |
 |-------|------|---------|
-| `admin` | `admin` | — (all) |
-| `dauphin` | `editor` | Dauphin |
-| `aras` | `editor` | Ara |
+| `admin` | `ROLE_ADMIN` | Macaws, Saimiris, Dolphins |
+| `dauphin` | `ROLE_SOIGNEUR` | Dolphins |
+| `aras` | `ROLE_SOIGNEUR` | Macaws |
+
+Roles follow the Spring Security convention (`ROLE_` prefix): `ROLE_ADMIN`, `ROLE_SOIGNEUR`, `ROLE_CHERCHEUR`.
+Module values used by the backend: `status` = `ONLINE` / `OFFLINE`, `current_mode` = `MANUAL` / `AUTOMATIC`, `playback_mode` = `SEQUENTIAL` / `RANDOM`.
 
 > **Warning:** demo credentials only. Change them before any non-local deployment.
 
@@ -115,7 +118,7 @@ SELECT COUNT(*) FROM peps.iot_module;        -- 7
 SELECT COUNT(*) FROM peps.sound;             -- 10
 
 -- Users and their species
-SELECT u.login, u.role, s.species_name
+SELECT u.login, u.role, s.name AS species
 FROM peps.users u
 LEFT JOIN peps.user_species us USING (id_user)
 LEFT JOIN peps.species s USING (id_species);
