@@ -8,9 +8,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import peps.peps_back.items.User;
+import peps.peps_back.domain.User;
 import peps.peps_back.repositories.UserRepository;
-import java.sql.Timestamp;
 
 @Component
 public class AdminInitializer implements ApplicationListener<ContextRefreshedEvent> {

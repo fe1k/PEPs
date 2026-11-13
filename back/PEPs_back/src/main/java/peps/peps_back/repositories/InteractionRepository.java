@@ -4,7 +4,7 @@
  */
 package peps.peps_back.repositories;
 
-import peps.peps_back.items.Interaction;
+import peps.peps_back.domain.Interaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -20,8 +20,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import peps.peps_back.items.AuditLog;
-import peps.peps_back.items.Interaction;
+import peps.peps_back.domain.AuditLog;
+import peps.peps_back.domain.Interaction;
 import peps.peps_back.repositories.AuditLogRepository;
 import peps.peps_back.repositories.InteractionRepository;
 

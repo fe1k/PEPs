@@ -10,11 +10,10 @@ package peps.peps_back.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import peps.peps_back.items.Interaction;
+import peps.peps_back.domain.Interaction;
 import peps.peps_back.repositories.InteractionRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 

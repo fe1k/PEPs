@@ -7,15 +7,14 @@ package peps.peps_back.repositories;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import peps.peps_back.items.Module;
+import peps.peps_back.domain.Module;
 
 /**
  *
@@ -25,11 +24,11 @@ public class ModuleRepositoryTest {
     
     private ModuleRepository mockRepository;   
     
-    static peps.peps_back.items.Module.ModuleConfig config;
+    static peps.peps_back.domain.Module.ModuleConfig config;
         
     @BeforeAll
     public static void setUpClass() {
-        config = new peps.peps_back.items.Module.ModuleConfig();
+        config = new peps.peps_back.domain.Module.ModuleConfig();
         config.setActif(true);
         config.setCurrentMode("REPEAT");
         config.setIdmodule(2);
@@ -54,7 +53,7 @@ public class ModuleRepositoryTest {
         Integer id = 1;
          when(mockRepository.findById(id)).thenReturn(interactionOpt);
 
-        Optional<peps.peps_back.items.Module> result = mockRepository.findById(id);
+        Optional<peps.peps_back.domain.Module> result = mockRepository.findById(id);
         assertTrue(result.isPresent());
         Module moduleType = result.get();
         assertEquals("REPEAT", moduleType.getCurrentMode());

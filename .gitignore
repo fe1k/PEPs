@@ -18,3 +18,10 @@ back/PEPs_back/target/*
 # Ignore .env.dev and text log files
 .env.dev
 *.txt
+
+# IntelliJ IDEA configuration
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
