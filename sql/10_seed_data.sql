@@ -1,15 +1,15 @@
 -- ============================================================
 -- 10_seed_data.sql
--- Données de base / démo, compatibles avec 01_create_tables.sql
+-- Seed / demo data, compatible with 01_create_tables.sql
 --
--- Utilisateurs de démo (mot de passe : "admin" pour tous)
+-- Demo users (password: "admin" for all)
 --   admin   → ROLE_ADMIN    (Macaws, Saimiris, Dolphins)
 --   dauphin → ROLE_SOIGNEUR (Dolphins)
 --   aras    → ROLE_SOIGNEUR (Macaws)
--- Hash BCrypt (strength 10) vérifié pour "admin".
--- Mots de passe de démo uniquement — à changer hors dev.
+-- Verified BCrypt hash (strength 10) for "admin".
+-- Demo passwords only — must be changed outside dev environments.
 --
--- Script idempotent : peut être relancé sans erreur.
+-- Idempotent script: can be re-run safely without errors.
 -- ============================================================
 
 -- ------------------------------------------------------------
@@ -31,7 +31,7 @@ INSERT INTO peps.users (login, password_hash, role, is_active) VALUES
 ON CONFLICT (login) DO NOTHING;
 
 -- ------------------------------------------------------------
--- User_Species (on passe par le login, pas par un id fixe)
+-- User_Species (resolved by login rather than hardcoded IDs)
 -- ------------------------------------------------------------
 INSERT INTO peps.User_Species (id_user, id_species)
 SELECT u.id_user, s.id_species
@@ -97,8 +97,8 @@ INSERT INTO peps.Interaction (id_interaction, interaction_type, triggered_at, id
 ON CONFLICT (id_interaction) DO NOTHING;
 
 -- ------------------------------------------------------------
--- Séquences : les recaler sur le MAX(id) réel
--- (sinon le prochain INSERT sans id entre en conflit avec les ids fixés ci-dessus)
+-- Séquences: reset to the actual MAX(id)
+-- (otherwise the next INSERT without an explicit ID will conflict with the hardcoded IDs above)
 -- ------------------------------------------------------------
 SELECT setval(pg_get_serial_sequence('peps.species',     'id_species'),     (SELECT MAX(id_species)     FROM peps.species));
 SELECT setval(pg_get_serial_sequence('peps.users',       'id_user'),        (SELECT MAX(id_user)        FROM peps.users));
