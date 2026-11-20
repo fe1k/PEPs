@@ -1,25 +1,25 @@
 -- ============================================================
 -- 20_seed_archive_test.sql
--- Données de test pour l'archivage (Audit_Log + Interaction).
--- Remplace 100_archive_audit.sql et 101_archive_test.sql.
+-- Test data for archiving (Audit_Log + Interaction).
+-- Replaces 100_archive_audit.sql and 101_archive_test.sql.
 --
--- Les dates sont RELATIVES à NOW() pour que le jeu de test reste
--- valable quel que soit le jour où la base est créée :
---   - archivables     : entre 4 et 12 mois dans le passé
---   - non archivables : moins de 3 mois (pour vérifier qu'elles restent)
+-- Dates are RELATIVE to NOW() so that the test dataset remains
+-- valid regardless of the day the database is created:
+--   - archivable     : between 4 and 12 months in the past
+--   - non-archivable : less than 3 months old (to verify they remain)
 --
--- Dépend de 10_seed_data.sql (users, species, modules, sounds).
--- Non idempotent : relancer le script duplique les lignes.
+-- Depends on 10_seed_data.sql (users, species, modules, sounds).
+-- Not idempotent: re-running the script will duplicate rows.
 -- ============================================================
 
 -- ------------------------------------------------------------
 -- Audit_Log
--- (old_value / new_value n'existent plus → résumés dans details)
+-- (old_value / new_value no longer exist → summarized in details)
 -- ------------------------------------------------------------
 INSERT INTO peps.Audit_Log (action, entity_type, entity_id, logged_at, details, id_user)
 SELECT v.action, v.entity_type, v.entity_id, NOW() - v.age, v.details, u.id_user
 FROM (VALUES
-    -- Archivables
+    -- Archivable
     ('CREATE', 'module', 1,  INTERVAL '4 months',  'Création du module "Module Bassin Principal" (Dolphins)', 'admin'),
     ('UPDATE', 'sound',  2,  INTERVAL '5 months',  'Sound "Clics de Dauphin" : type Ambiance → Vocal',        'dauphin'),
     ('DELETE', 'module', 99, INTERVAL '6 months',  'Suppression du module obsolète "Module Test"',           'admin'),
@@ -29,7 +29,7 @@ FROM (VALUES
     ('UPDATE', 'user',   2,  INTERVAL '10 months', 'Compte "dauphin" : role ROLE_CHERCHEUR → ROLE_SOIGNEUR',                'admin'),
     ('DELETE', 'sound',  98, INTERVAL '11 months', 'Suppression du son vocal obsolète "Son Ancien"',         'dauphin'),
     ('CREATE', 'module', 7,  INTERVAL '12 months', 'Création du module "GESTION ARAS"',                      'admin'),
-    -- Non archivables (récents)
+    -- Non-archivable (recent)
     ('UPDATE', 'module', 1,  INTERVAL '10 days',   'Module "Module Bassin Principal" : volume 80 → 90',      'dauphin'),
     ('UPDATE', 'module', 4,  INTERVAL '1 month',   'Module "Module Volière Ara" : volume 70 → 75',           'aras')
 ) AS v(action, entity_type, entity_id, age, details, login)
@@ -37,7 +37,7 @@ LEFT JOIN peps.users u ON u.login = v.login;
 
 -- ------------------------------------------------------------
 -- Interaction
--- Module et son choisis par espèce (pas d'id codé en dur)
+-- Module and sound selected by species (no hardcoded IDs)
 -- ------------------------------------------------------------
 WITH target AS (
     SELECT s.name,
@@ -52,7 +52,7 @@ WITH target AS (
 INSERT INTO peps.Interaction (interaction_type, triggered_at, id_module, id_sound)
 SELECT v.interaction_type, NOW() - v.age, t.id_module, t.id_sound
 FROM (VALUES
-    -- Dolphins : archivables
+    -- Dolphins: archivable
     ('Dolphins', 'Head',  INTERVAL '4 months'),
     ('Dolphins', 'Tail',  INTERVAL '5 months'),
     ('Dolphins', 'Head',  INTERVAL '6 months'),
@@ -62,7 +62,7 @@ FROM (VALUES
     ('Dolphins', 'Head',  INTERVAL '10 months'),
     ('Dolphins', 'Tail',  INTERVAL '11 months'),
     ('Dolphins', 'Head',  INTERVAL '12 months'),
-    -- Macaws : archivables
+    -- Macaws: archivable
     ('Macaws',   'Bec',   INTERVAL '4 months'),
     ('Macaws',   'Patte', INTERVAL '5 months'),
     ('Macaws',   'Bec',   INTERVAL '6 months'),
@@ -72,14 +72,14 @@ FROM (VALUES
     ('Macaws',   'Bec',   INTERVAL '10 months'),
     ('Macaws',   'Patte', INTERVAL '11 months'),
     ('Macaws',   'Bec',   INTERVAL '12 months'),
-    -- Non archivables (récentes)
+    -- Non-archivable (recent)
     ('Dolphins', 'Head',  INTERVAL '2 weeks'),
     ('Macaws',   'Bec',   INTERVAL '1 month')
 ) AS v(name, interaction_type, age)
 JOIN target t ON t.name = v.name;
 
 -- ------------------------------------------------------------
--- Vérification : archivable / non archivable par table
+-- Verification: archivable / non-archivable per table
 -- ------------------------------------------------------------
 SELECT 'audit_log' AS table_name,
        COUNT(*) FILTER (WHERE logged_at <  NOW() - INTERVAL '3 months') AS archivables,
