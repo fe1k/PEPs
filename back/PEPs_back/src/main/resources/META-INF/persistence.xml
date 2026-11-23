@@ -1,37 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="2.2" 
-             xmlns="http://xmlns.jcp.org/xml/ns/persistence" 
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<persistence version="2.2"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
-  <!-- Define Persistence Unit -->
-  <persistence-unit name="peps.peps_back.0PU" transaction-type="RESOURCE_LOCAL">
-    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-    <class>peps.peps_back.items.Interaction</class>
-    <class>peps.peps_back.items.Sound</class>
-    <class>peps.peps_back.items.Module</class>
-    <class>peps.peps_back.items.User</class>
-    <class>peps.peps_back.items.AuditLog</class>
-    <exclude-unlisted-classes>false</exclude-unlisted-classes>
-    <properties>
+    <!-- Define Persistence Unit -->
+    <persistence-unit name="peps.peps_back.0PU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>peps.peps_back.domain.Species</class>
+        <class>peps.peps_back.domain.Playlist</class>
+        <class>peps.peps_back.domain.Sound</class>
+        <class>peps.peps_back.domain.User</class>
+        <class>peps.peps_back.domain.PlaylistSound</class>
+        <class>peps.peps_back.domain.IoTModule</class>
+        <class>peps.peps_back.domain.Interaction</class>
+        <class>peps.peps_back.domain.ObservationMeasurement</class>
+        <class>peps.peps_back.domain.AuditLog</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
 
-    	<!-- PostgreSQL JDBC (Managed by Spring) -->
-    	
-    	<!-- Forcer le schéma PostgreSQL -->
-    	<property name="eclipselink.default-schema"
-         	     value="peps"/>
+            <!-- PostgreSQL JDBC (Managed by Spring) -->
 
+            <!-- Force PostgreSQL schema -->
+            <property name="eclipselink.default-schema"
+                      value="peps"/>
 
-    	<!-- Désactiver toute génération automatique du schéma -->
-    	<property name="eclipselink.ddl-generation"
-             	 value="none"/>
-        <property name="eclipselink.weaving" value="false"/>
-        
-        <!-- Désactiver le cache pour voir les changements SQL immédiatement -->
-        <property name="eclipselink.cache.shared.default" value="false"/>
-        <property name="eclipselink.query.results-cache" value="false"/>
+            <!-- Disable automatic schema generation -->
+            <property name="eclipselink.ddl-generation"
+                      value="none"/>
+            <property name="eclipselink.weaving" value="false"/>
 
-    </properties>
-	
+            <!-- Disable shared cache to reflect SQL changes immediately -->
+            <property name="eclipselink.cache.shared.default" value="false"/>
+            <property name="eclipselink.query.results-cache" value="false"/>
 
-  </persistence-unit>
+        </properties>
+    </persistence-unit>
 </persistence>

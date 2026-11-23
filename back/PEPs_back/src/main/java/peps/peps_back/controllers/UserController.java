@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import peps.peps_back.items.User;
+import peps.peps_back.domain.User;
 import peps.peps_back.repositories.UserRepository;
 import peps.peps_back.services.AuditService;
 

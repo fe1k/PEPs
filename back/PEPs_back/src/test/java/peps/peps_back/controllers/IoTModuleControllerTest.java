@@ -7,22 +7,18 @@ package peps.peps_back.controllers;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.springframework.http.ResponseEntity;
-import peps.peps_back.items.Module;
-import peps.peps_back.repositories.InteractionRepository;
+import peps.peps_back.domain.Module;
 import peps.peps_back.repositories.ModuleRepository;
 
 /**
@@ -44,11 +40,11 @@ public class ModuleControllerTest {
         controller = new ModuleController(moduleRepository);
     }
 
-    static peps.peps_back.items.Module.ModuleConfig config;
+    static peps.peps_back.domain.Module.ModuleConfig config;
         
     @BeforeAll
     public static void setUpModuleConfig() {
-        config = new peps.peps_back.items.Module.ModuleConfig();
+        config = new peps.peps_back.domain.Module.ModuleConfig();
         config.setActif(true);
         config.setCurrentMode("REPEAT");
         config.setIdmodule(2);
@@ -66,8 +62,8 @@ public class ModuleControllerTest {
     public void testGetAllModules() {
         System.out.println("getAllModules");
 
-        ArrayList<peps.peps_back.items.Module> listModules = new ArrayList<>();
-        peps.peps_back.items.Module module = new peps.peps_back.items.Module(config);
+        ArrayList<peps.peps_back.domain.Module> listModules = new ArrayList<>();
+        peps.peps_back.domain.Module module = new peps.peps_back.domain.Module(config);
         listModules.add(module);
         when(moduleRepository.findAll()).thenReturn(listModules);
         

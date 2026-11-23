@@ -3,8 +3,7 @@ package peps.peps_back.controllers;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,15 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.springframework.http.ResponseEntity;
-import peps.peps_back.items.Interaction;
-import peps.peps_back.items.Module;
+import peps.peps_back.domain.Interaction;
+import peps.peps_back.domain.Module;
 import peps.peps_back.repositories.InteractionRepository;
 import peps.peps_back.repositories.ModuleRepository;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -45,11 +40,11 @@ public class DashBoardControllerTest {
         controller = new DashBoardController(interactionRepository, moduleRepository);
     }
 
-    static peps.peps_back.items.Module.ModuleConfig config;
+    static peps.peps_back.domain.Module.ModuleConfig config;
         
     @BeforeAll
     public static void setUpModuleConfig() {
-        config = new peps.peps_back.items.Module.ModuleConfig();
+        config = new peps.peps_back.domain.Module.ModuleConfig();
         config.setActif(true);
         config.setCurrentMode("REPEAT");
         config.setIdmodule(2);
@@ -74,7 +69,7 @@ public class DashBoardControllerTest {
         when(interactionRepository.count()).thenReturn(count);
 
         ArrayList<Module> listModules = new ArrayList<>();
-        Module module = new peps.peps_back.items.Module(config);
+        Module module = new peps.peps_back.domain.Module(config);
         listModules.add(module);
         when(moduleRepository.findAll()).thenReturn(listModules);
         

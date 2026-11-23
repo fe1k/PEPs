@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.stereotype.Component;
-import peps.peps_back.items.Sound;
+import peps.peps_back.domain.Sound;
 import peps.peps_back.repositories.SoundRepository;
 import peps.peps_back.services.MinioStorageService;
 

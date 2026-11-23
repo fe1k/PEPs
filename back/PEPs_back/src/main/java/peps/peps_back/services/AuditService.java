@@ -2,7 +2,7 @@ package peps.peps_back.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import peps.peps_back.items.AuditLog;
+import peps.peps_back.domain.AuditLog;
 import peps.peps_back.repositories.AuditLogRepository;
 
 /**

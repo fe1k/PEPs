@@ -18,7 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
-import peps.peps_back.items.Sound;
+import peps.peps_back.domain.Sound;
 import peps.peps_back.repositories.SoundRepository;
 import peps.peps_back.repositories.UserRepository;
 import peps.peps_back.services.AuditService;

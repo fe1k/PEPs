@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import peps.peps_back.items.Interaction;
-import peps.peps_back.items.Module;
+import peps.peps_back.domain.Interaction;
+import peps.peps_back.domain.Module;
 import peps.peps_back.repositories.InteractionRepository;
 import peps.peps_back.repositories.ModuleRepository;
 
