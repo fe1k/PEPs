@@ -22,7 +22,7 @@ import peps.peps_back.domain.Module;
  */
 public class ModuleRepositoryTest {
     
-    private ModuleRepository mockRepository;   
+    private IoTModuleRepository mockRepository;   
     
     static peps.peps_back.domain.Module.ModuleConfig config;
         
@@ -41,7 +41,7 @@ public class ModuleRepositoryTest {
     
     @BeforeEach
     public void setUp() {
-        mockRepository = mock(ModuleRepository.class);
+        mockRepository = mock(IoTModuleRepository.class);
         
     }
 

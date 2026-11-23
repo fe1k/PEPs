@@ -2,10 +2,18 @@ package peps.peps_back.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import peps.peps_back.domain.User;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * @author mariapazmunoz version 2.0
+ */
+
+@Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    Optional<User> findByLogin(String login);
+    public Optional<User> findByLogin(String login);
+
+    public boolean existsByLogin(String login);
 }

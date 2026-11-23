@@ -1,7 +1,3 @@
-/**
- * @author BOUNOUA Ilyas, VAZEILLE Clément, Anas EL HOUDI
- * @description This file defines the SoundRepository interface, which extends JpaRepository for Sound entities.
- */
 package peps.peps_back.repositories;
 
 import peps.peps_back.domain.Sound;
@@ -9,15 +5,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+
+/**
+ * @author mariapazmunoz version 2.0
+ */
 
 @Repository
-public interface SoundRepository extends JpaRepository<Sound, Integer>, SoundRepositoryCustom {
+public interface SoundRepository extends JpaRepository<Sound, Integer> {
 
-    /**
-     * Retrieves all sounds belonging to a specific role.
-     * For multi-profile system (data isolation by role).
-     * 
-     * @author Anas EL HOUDI
-     */
-    List<Sound> findByOwnerRole(String ownerRole);
+    public Optional<Sound> findByMinioKey(String MinioKey);
+
+    public List<Sound> findBySoundType(String soundType);
+
 }
