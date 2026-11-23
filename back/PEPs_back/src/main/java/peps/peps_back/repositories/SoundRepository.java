@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface SoundRepository extends JpaRepository<Sound, Integer> {
 
-    public Optional<Sound> findByMinioKey(String MinioKey);
+    public Optional<Sound> findByMinioKey(String minioKey);
 
     public List<Sound> findBySoundType(String soundType);
 
