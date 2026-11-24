@@ -33,17 +33,17 @@ class SpeciesRepositoryTest {
     }
 
     @Test
-    @DisplayName("findBySpeciesName() should return the species with the given name")
-    void testFindBySpeciesNameFound() {
-        Optional<Species> result = speciesRepository.findBySpeciesName("Ara");
+    @DisplayName("findByName() should return the species with the given name")
+    void testfindByNameFound() {
+        Optional<Species> result = speciesRepository.findByName("Ara");
 
         assertTrue(result.isPresent());
         assertEquals("Blue-and-yellow macaw", result.get().getDescription());
     }
 
     @Test
-    @DisplayName("findBySpeciesName() should return an empty Optional for an unknown name")
-    void testFindBySpeciesNameNotFound() {
-        assertFalse(speciesRepository.findBySpeciesName("Tiger").isPresent());
+    @DisplayName("findByName() should return an empty Optional for an unknown name")
+    void testfindByNameNotFound() {
+        assertFalse(speciesRepository.findByName("Tiger").isPresent());
     }
 }
