@@ -43,8 +43,8 @@ import java.util.Optional;
  * key.</li>
  * <li>Acknowledges the Redis message.</li>
  * </ol>
- *
- * @author Santiago Alexander RODRIGUEZ TRIANA
+ * @author Santiago Alexander RODRIGUEZ TRIANA and Franco Valdebenito
+ * @version 2.0
  */
 @Component
 @Profile("audio-worker")
@@ -134,19 +134,19 @@ public class StorageWorker implements StreamListener<String, MapRecord<String, S
 
             // --- 4. Upload to MinIO ---
             String objectKey = minioStorageService.uploadSound(
-                    sound.getNom(),
-                    sound.getTypeSon(),
+                    sound.getName(),
+                    sound.getSoundType(),
                     sound.getExtension(),
                     contentType,
                     inputStream,
                     audioBytes.length);
 
-            LOGGER.info("StorageWorker: uploaded '{}' to MinIO as '{}'", sound.getNom(), objectKey);
+            LOGGER.info("StorageWorker: uploaded '{}' to MinIO as '{}'", sound.getName(), objectKey);
 
             // --- 5. Persist the MinIO object key into Sound.chemin ---
-            sound.setChemin(objectKey);
+            sound.setMinioKey(objectKey);
             soundRepository.save(sound);
-            LOGGER.info("StorageWorker: updated Sound {} ('{}') chemin = '{}'", soundId, sound.getNom(), objectKey);
+            LOGGER.info("StorageWorker: updated Sound {} ('{}') minioKey = '{}'", soundId, sound.getName(), objectKey);
 
         } catch (Exception e) {
             LOGGER.error("StorageWorker: failed to process sound '{}' (message {}): {}", 

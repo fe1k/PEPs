@@ -40,7 +40,8 @@ import java.util.concurrent.TimeUnit;
  * from storage. All format adaptation (sample-rate conversion, mono mixing) and Redis
  * result caching are delegated to {@link DevicePrepWorker}.
  *
- * @author Santiago Alexander RODRIGUEZ TRIANA
+ * @author Santiago Alexander RODRIGUEZ TRIANA and Franco Valdebenito
+ * @version 2.0
  */
 @Component
 @Profile("audio-worker")
@@ -123,17 +124,17 @@ public class StorageReadWorker implements StreamListener<String, MapRecord<Strin
             }
 
             Sound sound = optSound.get();
-            String objectKey = sound.getChemin();
+            String objectKey = sound.getMinioKey();
 
-            if (objectKey == null || objectKey.isBlank()) {
-                LOGGER.warn("StorageReadWorker: Sound {} has no MinIO object key (chemin is empty).", soundId);
+            if (objectKey == null || objectKey.isBlank() || objectKey.startsWith("PENDING:")) {
+                LOGGER.warn("StorageReadWorker: Sound {} has no ready MinIO object key (minioKey='{}').", soundId, objectKey);
                 redisTemplate.opsForValue().set("ready-audio:" + jobId, "ERROR:NOT_UPLOADED_YET",
                         60, TimeUnit.SECONDS);
                 return;
             }
 
-            // --- 3. Download raw audio bytes from MinIO ---
-            byte[] audioBytes = minioStorageService.downloadSound(objectKey);
+                // --- 3. Download raw audio bytes from MinIO ---
+                byte[] audioBytes = minioStorageService.downloadSound(objectKey);
             LOGGER.info("StorageReadWorker: downloaded {} bytes for Sound {} from MinIO.", audioBytes.length, soundId);
 
             // --- 4. Encode bytes to Base-64 for transport through the Redis Stream ---
