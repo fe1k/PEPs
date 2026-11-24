@@ -21,13 +21,9 @@ public interface SpeciesRepository extends JpaRepository<Species, Integer> {
 
     /**
      * Retrieves a species by its unique name.
-     * <p>
-     * An explicit JPQL query is used because the entity attribute is {@code name},
-     * which does not match the derived method name {@code speciesName}.
      *
-     * @param speciesName the name of the species to find
+     * @param name the unique name of the species to find
      * @return an {@link Optional} containing the matching species, or empty if none exists
      */
-    @Query("SELECT s FROM Species s WHERE s.name = :speciesName")
-    public Optional<Species> findBySpeciesName(@Param("speciesName") String speciesName);
+    Optional<Species> findByName(String name);
 }
