@@ -1,47 +1,66 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
 package peps.peps_back.repositories;
 
-
+import java.util.List;
 import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.transaction.annotation.Transactional;
 import peps.peps_back.domain.Sound;
 
-/**
- *
- * @author Clément
- */
-public class SoundRepositoryTest {
-    
-    private SoundRepository mockRepository;   
-    
-    
-    @BeforeEach
-    public void setUp() {
-        mockRepository = mock(SoundRepository.class);
-        
-    }
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Integration tests for {@link SoundRepository} against an H2 in-memory database.
+ *
+ * @author María Paz Muñoz
+ * @version 2.0
+ */
+@SpringJUnitConfig(RepositoryTestConfig.class)
+@Transactional
+class SoundRepositoryTest {
+
+    @Autowired
+    private SoundRepository soundRepository;
+
+    @BeforeEach
+    void setUp() {
+        soundRepository.save(new Sound("Macaw Call", "Vocalization", "mp3", "sounds/macaw-call.mp3", 12));
+        soundRepository.save(new Sound("Lion Roar", "Vocalization", "wav", "sounds/lion-roar.wav", 8));
+        soundRepository.save(new Sound("Jungle Rain", "Ambient", "wav", "sounds/jungle-rain.wav", 45));
+    }
 
     @Test
-    public void testSomeMethod() {        
+    @DisplayName("findByMinioKey() should return the sound stored under the given key")
+    void testFindByMinioKeyFound() {
+        Optional<Sound> result = soundRepository.findByMinioKey("sounds/jungle-rain.wav");
 
-        Sound sound = new Sound(7, "gong", "Percussion", ".mp3");
-        Optional<Sound> soundOpt= Optional.of(sound);
-        Integer id = 1;
-         when(mockRepository.findById(id)).thenReturn(soundOpt);
-
-        Optional<Sound> result = mockRepository.findById(id);
         assertTrue(result.isPresent());
-        Sound soundType = result.get();
-        assertEquals("Percussion", soundType.getTypeSon());
+        assertEquals("Jungle Rain", result.get().getName());
     }
-    
+
+    @Test
+    @DisplayName("findByMinioKey() should return an empty Optional for an unknown key")
+    void testFindByMinioKeyNotFound() {
+        assertFalse(soundRepository.findByMinioKey("sounds/unknown.mp3").isPresent());
+    }
+
+    @Test
+    @DisplayName("findBySoundType() should return only the sounds of the given category")
+    void testFindBySoundType() {
+        List<Sound> result = soundRepository.findBySoundType("Vocalization");
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(s -> "Vocalization".equals(s.getSoundType())));
+    }
+
+    @Test
+    @DisplayName("findBySoundType() should return an empty list when no sound matches")
+    void testFindBySoundTypeNoMatch() {
+        assertTrue(soundRepository.findBySoundType("Percussion").isEmpty());
+    }
 }
