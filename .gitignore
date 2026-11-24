@@ -1,4 +1,5 @@
 *.log
+.DS_Store
 
 # Uploaded audio files (exclude from version control)
 back/PEPs_back/sons/**/*

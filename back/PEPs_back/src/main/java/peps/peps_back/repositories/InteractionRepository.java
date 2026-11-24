@@ -1,77 +1,38 @@
-/**
- * @author BOUNOUA Ilyas, VAZEILLE Clément, Anas EL HOUDI
- * @description This file defines the InteractionRepository interface, which extends JpaRepository for Interaction entities.
- */
 package peps.peps_back.repositories;
 
-import peps.peps_back.domain.Interaction;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import peps.peps_back.domain.Interaction;
 
-import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
-
+/**
+ * Spring Data JPA repository for {@link Interaction} entities, mapping to the {@code interaction} table.
+ * <p>
+ * Inherits standard CRUD operations from {@link JpaRepository}. Query methods declared
+ * here are implemented automatically by Spring Data from their names at runtime.
+ *
+ * @author María Paz Muñoz
+ * @version 2.0
+ */
 @Repository
 public interface InteractionRepository extends JpaRepository<Interaction, Integer> {
 
     /**
-     * Retrieves all interactions belonging to a specific role.
-     * For multi-profile system (data isolation by role).
-     * 
-     * @author Anas EL HOUDI
+     * Retrieves all interactions triggered by a given IoT module within a time range.
+     *
+     * @param moduleId the identifier of the IoT module
+     * @param start    the start of the time range (inclusive)
+     * @param end      the end of the time range (inclusive)
+     * @return the list of matching interactions; empty if none match
      */
-    List<Interaction> findByOwnerRole(String ownerRole);
+    List<Interaction> findByModule_ModuleIdAndTriggeredAtBetween(Integer moduleId, LocalDateTime start, LocalDateTime end);
 
     /**
-     * Retrieves interactions by role within a specific time range.
+     * Retrieves all interactions triggered by modules assigned to a given species.
+     *
+     * @param speciesId the identifier of the species
+     * @return the list of matching interactions; empty if none match
      */
-    List<Interaction> findByOwnerRoleAndTimeLancementBetween(String ownerRole, java.util.Date startDate,
-            java.util.Date endDate);
-
-    /**
-     * Retrieves all interactions within a specific time range.
-     */
-    List<Interaction> findByTimeLancementBetween(java.util.Date startDate, java.util.Date endDate);
-
-    /**
-     * Retrieves all interactions before a specific date.
-     * Used by archive system to find old interactions.
-     * 
-     * @author Anas EL HOUDI
-     */
-    List<Interaction> findByTimeLancementBefore(java.util.Date date);
-
-    /**
-     * Counts interactions within a specific time range.
-     * Used by archive system to display period statistics.
-     * 
-     * @author Anas EL HOUDI
-     */
-    long countByTimeLancementBetween(java.util.Date startDate, java.util.Date endDate);
-
-    /**
-     * Deletes all interactions within a specific time range.
-     * Used by archive system after successful export.
-     * 
-     * @author Anas EL HOUDI
-     */
-    @Transactional
-    void deleteByTimeLancementBetween(java.util.Date startDate, java.util.Date endDate);
-
-    /**
-     * Retrieves interactions after a specific date.
-     * Used to filter out archived data from the main Interactions view.
-     * 
-     * @author Anas EL HOUDI
-     */
-    List<Interaction> findByTimeLancementAfter(java.util.Date date);
-
-    /**
-     * Retrieves interactions by role after a specific date.
-     * Used to filter out archived data from the main Interactions view
-     * (role-filtered).
-     * 
-     * @author Anas EL HOUDI
-     */
-    List<Interaction> findByOwnerRoleAndTimeLancementAfter(String ownerRole, java.util.Date date);
+    List<Interaction> findByModule_Species_SpeciesId(Integer speciesId);
 }
