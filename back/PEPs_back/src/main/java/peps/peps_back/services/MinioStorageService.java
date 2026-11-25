@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Service layer for audio file persistence in MinIO S3-compatible object storage.
+ * Service layer responsible for audio file persistence in MinIO S3-compatible object storage.
  *
  * Encapsulates bucket policies, input validation, and deterministic key sanitization.
  *
