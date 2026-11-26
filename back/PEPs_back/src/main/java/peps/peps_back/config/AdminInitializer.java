@@ -45,9 +45,8 @@ public class AdminInitializer implements ApplicationListener<ContextRefreshedEve
             User admin = new User();
             admin.setLogin(adminUsername);
             admin.setPasswordHash(passwordEncoder.encode(adminPassword));
-            admin.setRole("admin");
-            admin.setPermission("admin");
-            admin.setEnabled(true);
+            admin.setRole("ROLE_ADMIN");
+            admin.setIsActive(true);
 
             userRepository.save(admin);
             LOGGER.info("✅ Default admin user '{}' created successfully.", adminUsername);

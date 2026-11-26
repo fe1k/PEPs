@@ -1,33 +1,32 @@
-/**
- * @author Santiago Alexander RODRIGUEZ TRIANA
- * @description JWT utility — generates and validates signed JWT tokens stored as HttpOnly cookies.
- *
- * Token claims:
- *   sub         = login (username)
- *   userId      = database user ID (long)
- *   role        = user role string (e.g. "admin", "dauphin", "aras")
- *   permission  = "editor" | "viewer"
- *   iat         = issued-at
- *   exp         = expiry (LOGIN_EXPIRY_MS after iat, or Instant.now() for logout tokens)
- *
- * Secret: read from environment variable JWT_SECRET.
- * Falls back to a hardcoded development secret if the env var is absent.
- *
- * IMPORTANT: set JWT_SECRET to a strong random value (≥ 256 bits) in production.
- */
 package peps.peps_back.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 
+/**
+ * @author Santiago Alexander RODRIGUEZ TRIANA
+ * @description JWT utility — generates and validates signed JWT tokens stored as HttpOnly cookies.
+ * Token claims:
+ *   sub         = login (username)
+ *   userId      = database user ID (long)
+ *   role        = user role string ("ROLE_ADMIN", "ROLE_SOIGNEUR", "ROLE_CHERCHEUR")
+ *   permission  = LEGACY claim ("editor" | "viewer") maintained temporarily for backward compatibility
+ *   iat         = issued-at
+ *   exp         = expiry (LOGIN_EXPIRY_MS after iat, or Instant.EPOCH for logout tokens)
+ * Secret: read from environment variable JWT_SECRET.
+ * Falls back to a hardcoded development secret if the env var is absent.
+ * IMPORTANT: set JWT_SECRET to a strong random value (>= 256 bits) in production.
+ */
 public class JwtUtil {
 
-    /** 8 hours in milliseconds — token lifetime for a normal login session. */
+    /**
+     * 8 hours in milliseconds — token lifetime for a normal login session.
+     * TODO: Change to 30 minutes (30 * 60 * 1000L) when refactoring security/ and controllers/.
+     */
     private static final long LOGIN_EXPIRY_MS = 8 * 60 * 60 * 1000L;
 
     /** Cookie name used throughout the application. */
@@ -52,9 +51,27 @@ public class JwtUtil {
     // -------------------------------------------------------------------------
 
     /**
-     * Generates a valid JWT token for the given user, expiring in 8 hours.
-     * Used by the login endpoint.
+     * Generates a valid JWT token using the new RBAC role model.
+     * Automatically populates the legacy {@code permission} claim so existing controllers
+     * and {@link JwtFilter} continue working until Phase 3 refactoring.
+     *
+     * @param userId database user ID
+     * @param login  username
+     * @param role   RBAC role (e.g., "ROLE_ADMIN", "ROLE_SOIGNEUR", "ROLE_CHERCHEUR")
+     * @return signed JWT string
      */
+    public static String generateToken(long userId, String login, String role) {
+        String legacyPermission = resolveLegacyPermission(role);
+        return generateToken(userId, login, role, legacyPermission);
+    }
+
+    /**
+     * Generates a valid JWT token for the given user.
+     *
+     * @deprecated Legacy overload kept temporarily for backward compatibility with unrefactored controllers.
+     *             TODO: Remove the {@code permission} claim once all controllers check {@code role}.
+     */
+    @Deprecated
     public static String generateToken(long userId, String login, String role, String permission) {
         Instant now = Instant.now();
         return Jwts.builder()
@@ -108,5 +125,16 @@ public class JwtUtil {
             // Expired, invalid signature, malformed — all treated the same
             return null;
         }
+    }
+
+    /**
+     * Temporary adapter translating modern RBAC roles to the legacy permission claim.
+     * TODO: Delete this helper when removing legacy permission support.
+     */
+    private static String resolveLegacyPermission(String role) {
+        if ("ROLE_ADMIN".equals(role) || "ROLE_SOIGNEUR".equals(role)) {
+            return "editor";
+        }
+        return "viewer";
     }
 }
